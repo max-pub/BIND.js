@@ -1,6 +1,16 @@
-DATA = function(data, prefix) {
+// setDataPath = function(object, path, value) {
+// 	var path = path.split('.');
+// 	for (var i = 0; i < path.length - 1; i++)
+// 		object = object[path[i]];
+// 	// console.log('now', object, path.slice(-1)[0]);
+// 	object[path.slice(-1)[0]] = value;
+// 	// console.log('now', object, object[path.slice(-1)[0]]);
+// }
+
+DATA = function(data = {}, prefix, changeHandlers = []) {
 	if (!(data instanceof Object)) return data;
-	var changeHandlers = [];
+	console.log('DATA', prefix, changeHandlers);
+	// var changeHandlers = [];
 	if (!prefix) prefix = '';
 
 	for (var key in data)
@@ -9,9 +19,12 @@ DATA = function(data, prefix) {
 
 	var proxy = new Proxy(data, {
 		set: function(target, prop, value) {
-			if (value instanceof Object) value = DATA(value, prefix + prop + '.')
-			if (data[prop] === value) return; // no change (oldValue==newValue)
-			// console.log('DATA.set', prefix + prop, '=', value, '(' + data[prop] + ')');
+			if (value instanceof Object)
+				value = DATA(value, prefix + prop + '.', changeHandlers);
+			// console.log('compare', data[prop], value);
+			if (data[prop] === value) return true; // no change (oldValue==newValue)
+			console.log('DATA.set', prefix + prop, '=', value, '(' + data[prop] + ')');
+			// console.log(changeHandlers);
 			for (var i = 0; i < changeHandlers.length; i++)
 				changeHandlers[i]({
 					key: prefix + prop,
@@ -39,17 +52,9 @@ DATA = function(data, prefix) {
 			enumerable: false,
 			value: function(f) {
 				changeHandlers.push(f);
+				// console.log('ch', changeHandlers);
 				return this;
 			}
 		});
 	return proxy;
-}
-
-// setDataPath = function(object, path, value) {
-// 	var path = path.split('.');
-// 	for (var i = 0; i < path.length - 1; i++)
-// 		object = object[path[i]];
-// 	// console.log('now', object, path.slice(-1)[0]);
-// 	object[path.slice(-1)[0]] = value;
-// 	// console.log('now', object, object[path.slice(-1)[0]]);
-// }
+};

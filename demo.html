@@ -1,0 +1,41 @@
+<script src='GLUE.js'></script>
+<script src='ObjectObserver.js'></script>
+<script src='DOMObserver.js'></script>
+<script src='Node.js'></script>
+<!-- <script src='DATA.js'></script> -->
+<!-- <script src='VIEW.js'></script> -->
+
+
+<h2 bind='title'></h2>
+<h3 bind='subtitle'></h3>
+<p bind='text'></p>
+
+<input bind='title'/>
+<input bind='subtitle'/>
+<textarea bind='text'></textarea>
+
+<b bind='arr.1'></b>
+<br/>
+<b bind='arr.5'></b>
+<br/>
+<b bind='arr.length'></b>
+<br/>
+
+<progress bind='range' max='100'></progress>
+<b bind='range'></b>
+<br/>
+<input type='range' bind='range'/>
+<input bind='range' style='width: 40px;'/>
+
+
+
+
+<script>
+// var data = DATA({title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
+var oo = new ObjectObserver({title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
+
+// oo.onChange((key,val,old)=>{console.log('oo-change',key,val,old)});
+//title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]}
+var glue = new GLUE(document.body,oo);
+</script>
+
