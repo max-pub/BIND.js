@@ -16,9 +16,8 @@ class ObjectObserver {
 				if (value instanceof Object) // object? observe it too!
 					value = this.observe(value, prefix + prop + '.');
 				if (data[prop] === value) return true; // no change (oldValue==newValue)
-				var ret = Reflect.set(target, prop, value);
 				this.fireChange(prefix + prop, value, data[prop]);
-				return ret;
+				return Reflect.set(target, prop, value);
 			}
 		});
 	}
@@ -46,7 +45,6 @@ class ObjectObserver {
 	}
 
 	set(path, value) {
-		// console.log('O.set', path, value);
 		let o = this.data;
 		path.split('.').slice(0, -1).forEach(item => {
 			o = o[item];

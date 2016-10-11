@@ -1,67 +1,78 @@
 class GLUE {
 	constructor(root, data = {}) {
-		this.bindings = []; // each item = [dataPath, node, property]
+		this.oneWay = [];
+		this.twoWay = [];
 		this.root = root;
+		this.regex = new RegExp(/(\[\[[A-Za-z0-9\.]+\]\])/g);
 
 		this.view = new DOMObserver(root);
 		if (data instanceof ObjectObserver) this.model = data;
 		else this.model = new ObjectObserver(data);
 
 		this.view.onChange((event) => {
-			// console.log('GLUE.viewChange', node, property, value);
-			this.bindings.map(item => {
-				if (event.node == item[1])
-					this.model.set(item[0], event.value);
+			console.log('GLUE.viewChange', event);
+			this.twoWay.forEach(glue => {
+				// console.log('--test',event.node, glue.node, event.node == glue.node);
+				if (event.node == glue.node)
+					this.model.set(glue.keys[0], event.value);
 			})
 		});
 		this.model.onChange(event => {
 			// console.log('GLUE.dataChange', event);
-			this.bindings.map(item => {
-				if (event.key == item[0])
-					this.view.find(item[1]).set(item[2], event.value);
-			})
+			this.twoWay.forEach(glue => {
+				if (glue.keys.includes(event.key))
+					this.updateNode(glue)
+			});
+			this.oneWay.forEach(glue => {
+				if (glue.keys.includes(event.key))
+					this.updateNode(glue)
+			});
 		});
 
-		root.querySelectorAll("*").forEach(this.addNode.bind(this));
+		root.querySelectorAll("*").forEach(this.checkNode.bind(this));
+		console.log(this.oneWay);
+		console.log(this.twoWay);
+	}
+	updateNode(glue) {
+		// console.log('updateNode', glue.keys);
+		var string = glue.string;
+		glue.keys.forEach(key => {
+			string = string.replace('[[' + key + ']]', this.model.get(key));
+		})
+		new NODE(glue.node).set(glue.attribute, string);
+	}
+	add(domElement, domProperty, string, keys) {
+		// console.log(domElement, domProperty, string, keys);
+		var glue = {
+			node: domElement,
+			attribute: domProperty,
+			keys: keys,
+			string: string
+		};
+		if (domProperty == 'textContent') var attr = domElement.textContent;
+		else var attr = domElement.getAttribute(domProperty);
+		if (attr == '[[' + keys[0] + ']]')
+			this.twoWay.push(glue);
+		else
+			this.oneWay.push(glue);
+		this.updateNode(glue);
 	}
 
-	add(key, domElement, domProperty) {
-		// return;
-		// console.log('add', key, domElement, domProperty);
-		// console.log('GLUE.add', this.model.data, key, this.model.get(key));
-		this.bindings.push([key, domElement, domProperty]);
-		// this.root.querySelector(domElement)
-		this.view.find(domElement).set(domProperty, this.model.get(key));
-	}
-
-	addNode(domElement) {
-		// console.log('addNode', domElement);
-		var keys = domElement.attributes;
-		for (var i = 0; i < keys.length; i++) {
-			if (keys[i].name.split('-')[0] == 'bind')
-				this.add(keys[i].value, domElement, keys[i].name.split('-')[1]);
+	checkNode(domElement) {
+		var props = domElement.attributes;
+		for (var i = 0; i < props.length; i++) {
+			this.checkAttribute(domElement, props[i].name, props[i].value);
 		}
+		this.checkAttribute(domElement, 'textContent', domElement.textContent);
+	}
+	checkAttribute(node, key, val) {
+		if (this.regex.test(val)) { // contains bindings
+			var keys = val.match(this.regex).map(item => {
+				return item.slice(2, -2)
+			});
+			this.add(node, key, val, keys);
+		}
+
 	}
 
 }
-
-
-// if ('setPath' in data) this.model = data;
-// 
-// for (var i in this.bindings)
-// 	if (node == this.bindings[i][1])
-// 		this.model.setPath(this.bindings[i][0], value);
-
-
-// for (var i in this.bindings)
-// 	if (event.key == this.bindings[i][0])
-// 		this.view.find(this.bindings[i][1]).set(this.bindings[i][2], event.value);
-
-
-// Object.defineProperty(this.model, "bind", {
-// 	enumerable: false,
-// 	value: (dataKey, domElement, domProperty) => {
-// 		this.bindings.push([dataKey, domElement, domProperty]);
-// 		this.view.find(domElement).set(domProperty, this.model[dataKey]);
-// 	}
-// });

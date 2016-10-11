@@ -7,17 +7,13 @@ class DOMObserver {
 	observe(root) {
 		new MutationObserver(mutations => {
 			mutations.forEach(event => {
-				// console.log(event.type, event);
-				if (event.type == 'characterData')
-					this.fireChange(event.target.parentNode, 'textContent', event.target.textContent);
 				if (event.type == 'attributes')
-					this.fireChange(event.target, event.attributeName, event.target.getAttribute(event.attributeName));
-				// this.fireChange(event.target, event.attributeName, this.find(event.target).get(event.attributeName));
+					this.fireChange(event.target, event.attributeName, this.find(event.target).get(event.attributeName));
 			})
 		}).observe(root, {
 			attributes: true,
 			childList: true,
-			characterData: true,
+			// characterData: true,
 			subtree: true
 		});
 

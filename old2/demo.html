@@ -8,11 +8,8 @@
 <h2>[[title]]</h2>
 <h3>[[subtitle]]</h3>
 <p>[[text]]</p>
-<b>both: [[title]] - [[subtitle]]</b>
-<i style='color:[[color]];'>color</i>
 
 <input value='[[title]]'/>
-<input value='[[color]]'/>
 <textarea>[[text]]</textarea>
 
 
@@ -49,7 +46,7 @@
 
 <script>
 // var data = DATA({title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
-var oo = new ObjectObserver({color: 'red',title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
+var oo = new ObjectObserver({title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
 
 // oo.onChange((key,val,old)=>{console.log('oo-change',key,val,old)});
 //title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]}
