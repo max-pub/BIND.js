@@ -10,11 +10,11 @@ class GLUE {
 		else this.model = new ObjectObserver(data);
 
 		this.view.onChange((event) => {
-			console.log('GLUE.viewChange', event);
+			// console.log('GLUE.viewChange', event);
 			this.twoWay.forEach(glue => {
 				// console.log('--test',event.node, glue.node, event.node == glue.node);
 				if (event.node == glue.node)
-					this.model.set(glue.keys[0], event.value);
+					this.model.setPath(glue.keys[0], event.value);
 			})
 		});
 		this.model.onChange(event => {
@@ -30,14 +30,16 @@ class GLUE {
 		});
 
 		root.querySelectorAll("*").forEach(this.checkNode.bind(this));
-		console.log(this.oneWay);
-		console.log(this.twoWay);
+		DOMloop.findNodes(root, this.model);
+
+		// console.log(this.oneWay);
+		// console.log(this.twoWay);
 	}
 	updateNode(glue) {
 		// console.log('updateNode', glue.keys);
 		var string = glue.string;
 		glue.keys.forEach(key => {
-			string = string.replace('[[' + key + ']]', this.model.get(key));
+			string = string.replace('[[' + key + ']]', this.model.getPath(key));
 		})
 		new NODE(glue.node).set(glue.attribute, string);
 	}
@@ -59,6 +61,7 @@ class GLUE {
 	}
 
 	checkNode(domElement) {
+		// console.log('check', domElement);
 		var props = domElement.attributes;
 		for (var i = 0; i < props.length; i++) {
 			this.checkAttribute(domElement, props[i].name, props[i].value);
@@ -66,6 +69,7 @@ class GLUE {
 		this.checkAttribute(domElement, 'textContent', domElement.textContent);
 	}
 	checkAttribute(node, key, val) {
+		// console.log('check', node, key, val);
 		if (this.regex.test(val)) { // contains bindings
 			var keys = val.match(this.regex).map(item => {
 				return item.slice(2, -2)

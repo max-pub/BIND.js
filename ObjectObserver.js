@@ -12,14 +12,29 @@ class ObjectObserver {
 			data[key] = this.observe(data[key], prefix + key + '.');
 
 		return new Proxy(data, {
-			set: (target, prop, value) => {
+			set: (target, property, value, receiver) => {
+				// console.log('SET', target, property, value, receiver);
+				console.log('SET', property, value);
 				if (value instanceof Object) // object? observe it too!
-					value = this.observe(value, prefix + prop + '.');
-				if (data[prop] === value) return true; // no change (oldValue==newValue)
-				var ret = Reflect.set(target, prop, value);
-				this.fireChange(prefix + prop, value, data[prop]);
+					value = this.observe(value, prefix + property + '.');
+				if (data[property] === value) return true; // no change (oldValue==newValue)
+				var ret = Reflect.set(target, property, value);
+				this.fireChange(prefix + property, value, data[property]);
 				return ret;
 			}
+
+			// get: (target, property, c, d) => {
+			// 	console.log("GET", property);
+			// 	switch (property) {
+			// 		case 'push':
+			// 			console.log('push', c, d);
+			// 			break;
+			// 		case 'unshift':
+			// 			console.log('unshift', c, d, target);
+			// 			break;
+			// 	}
+			// 	return Reflect.get(target, property);
+			// }
 		});
 	}
 
@@ -29,7 +44,7 @@ class ObjectObserver {
 	}
 
 	fireChange(path, newValue, oldValue) {
-		console.log('DATA.fireChange', path, '=', newValue, '(' + oldValue + ')');
+		// console.log('DATA.fireChange', path, '=', newValue, '(' + oldValue + ')');
 		this.changeHandlers.forEach(f => f({
 			key: path,
 			value: newValue,
@@ -37,7 +52,7 @@ class ObjectObserver {
 		}));
 	}
 
-	get(path, value) {
+	getPath(path) {
 		let o = this.data;
 		path.split('.').slice(0, -1).forEach(item => {
 			if (o[item]) o = o[item];
@@ -45,7 +60,7 @@ class ObjectObserver {
 		return o[path.split('.').slice(-1)[0]];
 	}
 
-	set(path, value) {
+	setPath(path, value) {
 		// console.log('O.set', path, value);
 		let o = this.data;
 		path.split('.').slice(0, -1).forEach(item => {

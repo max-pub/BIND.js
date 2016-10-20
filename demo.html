@@ -2,6 +2,7 @@
 <script src='ObjectObserver.js'></script>
 <script src='DOMObserver.js'></script>
 <script src='Node.js'></script>
+<script src='loop.js'></script>
 <!-- <script src='DATA.js'></script> -->
 <!-- <script src='VIEW.js'></script> -->
 
@@ -13,7 +14,7 @@
 
 <input value='[[title]]'/>
 <input value='[[color]]'/>
-<textarea>[[text]]</textarea>
+<textarea value='[[text]]'></textarea>
 
 
 <progress value='[[range]]' max='100'></progress>
@@ -22,6 +23,14 @@
 <input type='range' value='[[range]]'/>
 <input value='[[range]]' style='width: 40px;'/>
 
+<ul>
+	<template loop='lst2'>
+		<li>
+			<input value='[[text]]'/>
+			<i>[[text]]</i>
+		</li>
+	</template>
+</ul>
 
 <!-- <h2 bind='title'></h2> -->
 <!-- <h3 bind='subtitle'></h3> -->
@@ -49,10 +58,14 @@
 
 <script>
 // var data = DATA({title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
-var oo = new ObjectObserver({color: 'red',title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]});
+var oo = new ObjectObserver({color: 'red', 
+	title:'Data Binding',subtitle:'in less than 1k',
+	text:'random shit',range:10, 
+	lst2: [{text:'blang'},{text:'blub'},{text:'jaja'}]});
 
 // oo.onChange((key,val,old)=>{console.log('oo-change',key,val,old)});
 //title:'Data Binding',subtitle:'in less than 1k',range:10,arr:[5,6,{xx:'hallo'}]}
 var glue = new GLUE(document.body,oo);
+// new DOMloop(document.querySelector('template[loop]'), [{text:'bla'},{text:'blub'}])
 </script>
 
